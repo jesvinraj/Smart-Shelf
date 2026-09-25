@@ -1,0 +1,2 @@
+# Development / CI-only dependencies.
+coverage>=7.4

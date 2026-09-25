@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Dashboard</h1>
+  <div class="actions">
+    <button class="btn sm ghost" onclick="refreshDash()">⟳ Refresh</button>
+  </div>
+</div>
+
+<div class="grid grid-4 mb-1" id="kpiRow"></div>
+
+<div class="grid grid-side mb-1" id="chartsRow">
+  <div class="card">
+    <div class="sect-title">Sales Trend (30d)</div>
+    <canvas id="salesChart" height="110"></canvas>
+  </div>
+  <div class="card">
+    <div class="sect-title">Expiry Summary</div>
+    <canvas id="expiryChart" height="110"></canvas>
+  </div>
+</div>
+
+<div class="grid grid-side mb-1">
+  <div class="card">
+    <div class="sect-title">🔴 High Risk Inventory <span class="right"><a href="{{ url_for('pages.risk') }}">View All →</a></span></div>
+    <div class="table-wrap">
+      <table class="tbl">
+        <thead><tr><th>Product</th><th>Batch</th><th>Risk</th><th>Expiry (days)</th><th>Price</th></tr></thead>
+        <tbody id="riskBody"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="sect-title">⚠️ Low Stock</div>
+    <div id="lowStock"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/common.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

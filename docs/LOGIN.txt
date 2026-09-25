@@ -1,0 +1,74 @@
+============================================================
+   SmartShelf - LOGIN & QUICK START GUIDE
+============================================================
+
+------------------------------------------------------------
+1. HOW TO RUN THE APP
+------------------------------------------------------------
+Open a terminal in the SmartShelf folder (where app.py lives)
+and run ONE of these:
+
+  .venv\Scripts\python.exe -m flask --app app run
+
+  ...or for auto-reload/debug mode:
+  .venv\Scripts\python.exe app.py
+
+Then open your browser at:
+
+  http://127.0.0.1:5000
+
+The database (smart_shelf.db) is already seeded, so no setup
+is required. You should see the SmartShelf LOGIN page.
+
+------------------------------------------------------------
+2. WORKING DEMO LOGINS
+------------------------------------------------------------
+On the login page at http://127.0.0.1:5000/login, use these
+username / password combinations (all verified working):
+
+  Role      | Username | Password
+  ----------|----------|-----------
+  Admin     | admin    | admin123
+  Manager   | manager  | manager123
+  Cashier   | cashier  | cashier123
+
+Notes:
+  - Enter the USERNAME, not the email.
+  - Admin can do everything.
+  - Manager can manage inventory/products/suppliers/sales.
+  - Cashier can process sales.
+
+------------------------------------------------------------
+2b. SECURITY (enabled on this build)
+------------------------------------------------------------
+  - Account lockout: 5 failed logins lock the account 15 min.
+  - Per-IP rate limit: 10 login attempts / 5 minutes.
+  - Password policy on new/changed passwords: 8+ chars with
+    uppercase, lowercase, digit, special char. The demo seed
+    passwords above still WORK for login (policy only applies
+    when creating/changing a password).
+  - 2FA (TOTP): enable under Settings -> Two-Factor
+    Authentication at http://127.0.0.1:5000/settings
+    (scan the secret with Google Authenticator/Authy/etc).
+  - Password reset: POST /api/auth/forgot-password then
+    POST /api/auth/reset-password with the returned token
+    (dev flow; in production the token is emailed).
+  - Login audit trail: every success/failure is logged with IP +
+    user-agent and shown in Settings -> Recent Login Activity.
+
+------------------------------------------------------------
+3. WHAT TO DO IF LOGIN FAILS
+------------------------------------------------------------
+  - Double-check the username/password exactly as above.
+  - Make sure the app is running and you are on http://127.0.0.1:5000.
+  - If the database was never seeded, run:
+        .venv\Scripts\python.exe -m flask --app app init-db
+        .venv\Scripts\python.exe -m flask --app app seed
+
+------------------------------------------------------------
+4. DEFAULT DATABASE
+------------------------------------------------------------
+App uses SQLite by default: SmartShelf\smart_shelf.db
+To switch to MySQL or PostgreSQL, set DATABASE_URL in .env
+(see .env.example) and install requirements-optional.txt.
+============================================================

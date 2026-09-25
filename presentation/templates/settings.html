@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Settings &amp; Security{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Settings &amp; Security</h1>
+</div>
+
+<div class="grid grid-2">
+  <div>
+    <div class="card">
+      <div class="sect-title">Account</div>
+      <div id="accountInfo"></div>
+    </div>
+
+    <div class="card">
+      <div class="sect-title">Change Password</div>
+      <div id="pwMsg" class="alert-item border-left-red hide" style="margin-bottom:.8rem;">
+        <span class="severity">⚠️</span><div class="body"><p id="pwText"></p></div>
+      </div>
+      <p id="pwPolicyHint" class="muted" style="font-size:.8rem;"></p>
+      <form id="pwForm">
+        <div class="field">
+          <label for="old_password">Current password</label>
+          <input id="old_password" name="old_password" type="password" autocomplete="current-password" required>
+        </div>
+        <div class="field">
+          <label for="new_password">New password</label>
+          <input id="new_password" name="new_password" type="password" autocomplete="new-password" required>
+        </div>
+        <div class="field">
+          <label for="new_password2">Confirm new password</label>
+          <input id="new_password2" name="new_password2" type="password" autocomplete="new-password" required>
+        </div>
+        <button class="btn" type="submit">UPDATE PASSWORD</button>
+      </form>
+    </div>
+  </div>
+
+  <div>
+    <div class="card">
+      <div class="sect-title">Two-Factor Authentication (TOTP)</div>
+      <div id="twofaMsg" class="alert-item border-left-red hide" style="margin-bottom:.8rem;">
+        <span class="severity">⚠️</span><div class="body"><p id="twofaText"></p></div>
+      </div>
+      <div id="twofaView"></div>
+    </div>
+
+    <div class="card">
+      <div class="sect-title">Business Rules</div>
+      <p class="muted">Expiry alert window: <strong>30 days</strong></p>
+      <p class="muted">FEFO: First Expired, First Out is applied automatically at sale and transfer.</p>
+      <p class="muted">Max 5 failed logins lock an account for 15 minutes. Per-IP: 10 attempts / 5 minutes.</p>
+    </div>
+  </div>
+</div>
+
+{% if current_user.role in ('MANAGER', 'ADMIN') %}
+<div class="card" style="margin-top:1rem;">
+  <div class="sect-title">User Management — Assign Positions</div>
+  <p class="muted">Staff who self-register start as <strong>User</strong> until an admin approves them and sets the correct position — User, Staff, Cashier, Biller, Manager (or Admin) — and access follows the role.</p>
+  <div id="usersMsg" class="alert-item border-left-red hide" style="margin-bottom:.8rem;">
+    <span class="severity">⚠️</span><div class="body"><p id="usersText"></p></div>
+  </div>
+
+  <details style="margin-bottom:1rem;">
+    <summary>+ Create a user</summary>
+    <form id="addUserForm" style="margin-top:.6rem;">
+      <div class="grid grid-2" style="gap:.6rem;">
+        <div class="field">
+          <label for="u_username">Username</label>
+          <input id="u_username" name="u_username" required>
+        </div>
+        <div class="field">
+          <label for="u_full_name">Full name</label>
+          <input id="u_full_name" name="u_full_name">
+        </div>
+        <div class="field">
+          <label for="u_email">Email (optional)</label>
+          <input id="u_email" name="u_email" type="email">
+        </div>
+        <div class="field">
+          <label for="u_password">Password</label>
+          <input id="u_password" name="u_password" type="password" required>
+        </div>
+        <div class="field">
+          <label for="u_role">Position / Role</label>
+          <select id="u_role" name="u_role">
+            <option value="USER">User</option>
+            <option value="STAFF">Staff</option>
+            <option value="CASHIER">Cashier</option>
+            <option value="BILLER">Biller</option>
+            <option value="MANAGER">Manager</option>
+            {% if current_user.role == 'ADMIN' %}<option value="ADMIN">Admin</option>{% endif %}
+          </select>
+        </div>
+      </div>
+      <button class="btn" type="submit">CREATE USER</button>
+    </form>
+  </details>
+
+  <div id="usersList">
+    <p class="muted">Loading...</p>
+  </div>
+</div>
+{% endif %}
+
+<div class="card" style="margin-top:1rem;">
+  <div class="sect-title">Recent Login Activity</div>
+  <div id="loginHistory">
+    <p class="muted">Loading...</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/common.js') }}"></script>
+<script>window.SMARTSHELF_ROLE = '{{ current_user.role }}'; window.SMARTSHELF_ME = {{ current_user.id }};</script>
+<script src="{{ url_for('static', filename='js/settings.js') }}"></script>
+{% endblock %}

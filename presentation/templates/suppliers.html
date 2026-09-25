@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Suppliers{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Suppliers</h1>
+  <div class="actions">
+    <button class="btn" onclick="document.getElementById('addModal').classList.remove('hide')">+ Add Supplier</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="sect-title">Supplier Directory</div>
+  <div class="table-wrap">
+    <table class="tbl">
+      <thead><tr><th>Name</th><th>Contact</th><th>Phone</th><th>Email</th><th>Address</th><th>Status</th><th></th></tr></thead>
+      <tbody id="supplierBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay hide" id="addModal">
+  <div class="modal">
+    <div class="modal-head"><h3>Add Supplier</h3><button class="icon-btn" onclick="document.getElementById('addModal').classList.add('hide')">✕</button></div>
+    <form id="addForm">
+      <div class="field"><label>Name *</label><input name="name" required></div>
+      <div class="form-row">
+        <div class="field"><label>Contact person</label><input name="contact_person"></div>
+        <div class="field"><label>Phone</label><input name="phone"></div>
+      </div>
+      <div class="field"><label>Email</label><input name="email" type="email"></div>
+      <div class="field"><label>Address</label><textarea name="address" rows="2"></textarea></div>
+      <div class="modal-foot">
+        <button type="button" class="btn ghost" onclick="document.getElementById('addModal').classList.add('hide')">Cancel</button>
+        <button type="submit" class="btn">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/common.js') }}"></script>
+<script src="{{ url_for('static', filename='js/suppliers.js') }}"></script>
+{% endblock %}

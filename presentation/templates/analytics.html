@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Analytics{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Demand Analytics</h1>
+  <p class="sub">Sales velocity and product movement classification.</p>
+</div>
+
+<div class="card mb-1">
+  <div class="sect-title">Product Velocity — Fast vs Slow Movers</div>
+  <div class="table-wrap">
+    <table class="tbl">
+      <thead><tr><th>Product</th><th>Units (30d)</th><th>Velocity / day</th><th>Movement</th></tr></thead>
+      <tbody id="velocityBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="grid grid-side mb-1">
+  <div class="card">
+    <div class="sect-title">Demand Analysis (per-product velocity)</div>
+    <div id="demandList"></div>
+  </div>
+  <div class="card">
+    <div class="sect-title">Forecast</div>
+    <div class="form-inline mb-1" style="display:flex;gap:.5rem;align-items:flex-end">
+      <div class="field"><label>Product ID</label><input id="forecastPid" type="number" value="1"></div>
+      <button class="btn sm" onclick="loadForecast()">Forecast</button>
+    </div>
+    <div id="forecastBox"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/common.js') }}"></script>
+<script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
+{% endblock %}

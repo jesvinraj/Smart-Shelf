@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Products{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Products</h1>
+  <div class="actions">
+    <button class="btn" onclick="document.getElementById('addModal').classList.remove('hide')">+ Add Product</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="sect-title">Product Catalogue</div>
+  <div class="table-wrap">
+    <table class="tbl">
+      <thead><tr><th>Name</th><th>SKU</th><th>Category</th><th>Unit</th><th>Price</th><th>Stock</th><th>Status</th><th></th></tr></thead>
+      <tbody id="productBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Add modal -->
+<div class="modal-overlay hide" id="addModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Add Product</h3>
+      <button class="icon-btn" onclick="document.getElementById('addModal').classList.add('hide')">✕</button>
+    </div>
+    <form id="addForm">
+      <div class="form-row">
+        <div class="field"><label>Name</label><input name="name" required></div>
+        <div class="field"><label>SKU</label><input name="sku" required></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Unit</label><input name="unit" placeholder="pcs, kg, btl"></div>
+        <div class="field"><label>Unit price (₹)</label><input name="unit_price" type="number" step="0.01"></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Cost price (₹)</label><input name="cost_price" type="number" step="0.01"></div>
+        <div class="field"><label>Shelf life (days)</label><input name="shelf_life_days" type="number"></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Storage condition</label>
+          <select name="storage_condition"><option value="AMBIENT">Ambient</option><option value="CHILLED">Chilled</option><option value="FROZEN">Frozen</option></select>
+        </div>
+        <div class="field"><label>Reorder level</label><input name="reorder_level" type="number" value="0"></div>
+      </div>
+      <label><input name="is_perishable" type="checkbox" style="width:auto"> Perishable</label>
+      <div class="modal-foot">
+        <button type="button" class="btn ghost" onclick="document.getElementById('addModal').classList.add('hide')">Cancel</button>
+        <button type="submit" class="btn">Save Product</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/common.js') }}"></script>
+<script src="{{ url_for('static', filename='js/products.js') }}"></script>
+{% endblock %}

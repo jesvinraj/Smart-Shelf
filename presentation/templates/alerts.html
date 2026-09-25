@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Alerts{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Alerts & Notifications</h1>
+  <div class="actions">
+    <button class="btn" onclick="generateAlerts()">Generate Alerts</button>
+    <button class="btn ghost" onclick="readAll()">Mark all read</button>
+  </div>
+</div>
+
+<div class="grid grid-4 mb-1" id="alertKpis"></div>
+
+<div class="card" id="alertList"></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/common.js') }}"></script>
+<script src="{{ url_for('static', filename='js/alerts.js') }}"></script>
+{% endblock %}

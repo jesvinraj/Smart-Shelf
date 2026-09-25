@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Expiry{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Expiry & Shelf-Life</h1>
+  <div class="actions">
+    <button class="btn" onclick="scanExpiry()">Scan Now</button>
+  </div>
+</div>
+
+<div class="grid grid-3 mb-1" id="expiryKpis"></div>
+
+<div class="card">
+  <div class="sect-title">Batches Requiring Attention</div>
+  <div class="table-wrap">
+    <table class="tbl">
+      <thead><tr><th>Batch</th><th>Product</th><th>Qty</th><th>Expiry</th><th>Status</th></tr></thead>
+      <tbody id="expiryBody"></tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/common.js') }}"></script>
+<script src="{{ url_for('static', filename='js/expiry.js') }}"></script>
+{% endblock %}

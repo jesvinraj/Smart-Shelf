@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register · SmartShelf</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="login-page">
+    <span class="orb o1"></span>
+    <span class="orb o2"></span>
+    <span class="orb o3"></span>
+    <div class="login-card">
+      <div class="logo">🛒</div>
+      <h1>Create Account</h1>
+      <div class="tag">Staff registration · requires admin approval</div>
+
+      <div id="errorMsg" class="alert-item border-left-red hide" style="margin-bottom:1rem;">
+        <span class="severity">⚠️</span><div class="body"><p id="errorText"></p></div>
+      </div>
+
+      <form id="regForm">
+        <div class="field">
+          <label for="username">Username</label>
+          <input id="username" name="username" placeholder="3-50 chars: letters, digits, _ . -" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="full_name">Full name</label>
+          <input id="full_name" name="full_name" placeholder="Optional" autocomplete="name">
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" placeholder="8+ chars with UPPER/lower/digit/special" autocomplete="new-password" required>
+        </div>
+        <div class="field">
+          <label for="password2">Confirm password</label>
+          <input id="password2" name="password2" type="password" placeholder="Repeat password" autocomplete="new-password" required>
+        </div>
+        <button class="btn" type="submit" id="regBtn">CREATE ACCOUNT</button>
+      </form>
+      <p class="muted mt-1" style="font-size:.78rem;margin-bottom:0;">
+        Already registered? <a href="{{ url_for('pages.login') }}">Log in</a>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('regForm');
+    const btn = document.getElementById('regBtn');
+    const errBox = document.getElementById('errorMsg');
+    const errText = document.getElementById('errorText');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      btn.disabled = true; btn.textContent = 'CREATING...';
+      errBox.classList.add('hide');
+      const pw = document.getElementById('password').value;
+      const pw2 = document.getElementById('password2').value;
+      if (pw !== pw2) {
+        errText.textContent = 'Passwords do not match.';
+        errBox.classList.remove('hide');
+        btn.disabled = false; btn.textContent = 'CREATE ACCOUNT';
+        return;
+      }
+      try {
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: document.getElementById('username').value.trim(),
+            full_name: document.getElementById('full_name').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            password: pw,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Registration failed');
+        window.location.href = '/login?registered=1';
+      } catch (err) {
+        errText.textContent = err.message;
+        errBox.classList.remove('hide');
+        btn.disabled = false; btn.textContent = 'CREATE ACCOUNT';
+      }
+    });
+  </script>
+</body>
+</html>

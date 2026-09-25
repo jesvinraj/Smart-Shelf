@@ -1,0 +1,9 @@
+# Optional database drivers. Install one of these to use MySQL or PostgreSQL
+# instead of the default SQLite. Then set DATABASE_URL accordingly.
+#
+#     pip install -r requirements-optional.txt
+#
+#   MySQL:        DATABASE_URL=mysql+pymysql://user:pass@host/smartshelf
+#   PostgreSQL:   DATABASE_URL=postgresql+psycopg2://user:pass@host/smartshelf
+PyMySQL>=1.1
+psycopg2-binary>=2.9

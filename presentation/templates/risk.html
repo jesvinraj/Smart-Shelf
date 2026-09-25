@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Risk Analysis{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Risk Analysis</h1>
+  <div class="actions">
+    <select id="riskFilter">
+      <option value="ALL">All levels</option>
+      <option value="CRITICAL">Critical</option>
+      <option value="HIGH">High</option>
+      <option value="MEDIUM">Medium</option>
+      <option value="LOW">Low</option>
+    </select>
+  </div>
+</div>
+
+<div class="grid grid-4 mb-1" id="riskKpis"></div>
+
+<div class="card">
+  <div class="sect-title">Batch Spoilage Risk</div>
+  <div class="table-wrap">
+    <table class="tbl">
+      <thead><tr><th>Batch</th><th>Product</th><th>Qty</th><th>Expiry (days)</th><th>Score</th><th>Level</th></tr></thead>
+      <tbody id="riskBody"></tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/common.js') }}"></script>
+<script src="{{ url_for('static', filename='js/risk.js') }}"></script>
+{% endblock %}

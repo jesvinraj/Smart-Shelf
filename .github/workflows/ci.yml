@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Unit tests (FEFO + risk engines)
+        run: python tests/test_engines.py
+
+      - name: Security suite (30 scenarios)
+        run: python tests/test_security.py
+
+      - name: End-to-end smoke test
+        run: python tests/smoke_test.py
+
+      - name: Concurrency / atomicity test
+        run: python tests/test_concurrency.py
+
+      - name: Coverage report
+        run: |
+          coverage run --source=app,cli,config,routes,services,utils,models tests/test_engines.py
+          coverage run --append --source=app,cli,config,routes,services,utils,models tests/test_security.py
+          coverage run --append --source=app,cli,config,routes,services,utils,models tests/smoke_test.py
+          coverage run --append --source=app,cli,config,routes,services,utils,models tests/test_concurrency.py
+          coverage report --fail-under=50 --show-missing

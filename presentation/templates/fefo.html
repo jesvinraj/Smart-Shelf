@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}FEFO Order{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>FEFO Sell Order</h1>
+  <p class="sub">First Expired, First Out — earliest-expiring batches sell first.</p>
+</div>
+
+<div class="card">
+  <div class="sect-title">Suggested Fulfilment Order</div>
+  <div class="fefo-flow" id="fefoFlow"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/common.js') }}"></script>
+<script src="{{ url_for('static', filename='js/fefo.js') }}"></script>
+{% endblock %}

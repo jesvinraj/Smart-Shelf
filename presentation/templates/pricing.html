@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Pricing{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Dynamic Pricing</h1>
+  <p class="sub">Recommended discounts to recover revenue before expiry.</p>
+</div>
+
+<div class="grid grid-4 mb-1" id="pricingKpis"></div>
+
+<div class="card">
+  <div class="sect-title">Recommended Discounts — Highest Discount First</div>
+  <div class="table-wrap">
+    <table class="tbl">
+      <thead><tr><th>Product</th><th>Risk</th><th>Unit Price</th><th>Disc %</th><th>Discounted Price</th><th>Reason</th></tr></thead>
+      <tbody id="pricingBody"></tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/common.js') }}"></script>
+<script src="{{ url_for('static', filename='js/pricing.js') }}"></script>
+{% endblock %}

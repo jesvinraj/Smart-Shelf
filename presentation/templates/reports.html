@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Reports & Analytics</h1>
+  <div class="actions">
+    <button class="btn ghost" onclick="loadAll()">⟳ Refresh</button>
+  </div>
+</div>
+
+<div class="grid grid-2 mb-1">
+  <div class="card">
+    <div class="sect-title">Sales Report</div>
+    <canvas id="salesChart" height="120"></canvas>
+  </div>
+  <div class="card">
+    <div class="sect-title">Inventory Report</div>
+    <p class="muted" id="inventoryMeta"></p>
+    <div class="table-wrap">
+      <table class="tbl">
+        <thead><tr><th>Product</th><th>Batch</th><th>Qty</th><th>Expiry</th><th>Cost Value</th></tr></thead>
+        <tbody id="inventoryBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="grid grid-2 mb-1">
+  <div class="card">
+    <div class="sect-title">Waste Report</div>
+    <p class="muted" id="wasteMeta"></p>
+    <div id="wasteByReason"></div>
+  </div>
+  <div class="card">
+    <div class="sect-title">Product Performance</div>
+    <div class="table-wrap">
+      <table class="tbl">
+        <thead><tr><th>Product</th><th>Sold</th><th>On Hand</th></tr></thead>
+        <tbody id="performanceBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/common.js') }}"></script>
+<script src="{{ url_for('static', filename='js/reports.js') }}"></script>
+{% endblock %}

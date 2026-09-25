@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Inventory{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Inventory</h1>
+  <p class="sub">Receive, adjust and review stock by batch.</p>
+</div>
+
+<div class="grid grid-2 mb-1">
+  <div class="card">
+    <div class="sect-title">Receive Stock</div>
+    <form id="receiveForm" class="form-inline">
+      <div class="field"><label>Product ID</label><input name="product_id" type="number" required></div>
+      <div class="field"><label>Qty</label><input name="quantity" type="number" required></div>
+      <div class="field"><label>Batch code</label><input name="batch_code"></div>
+      <div class="field"><label>Cost (₹)</label><input name="cost_price" type="number" step="0.01"></div>
+      <div class="field"><label>Expiry</label><input name="expiry_date" type="date"></div>
+      <button type="submit" class="btn green" style="margin-top:22px">Receive</button>
+    </form>
+  </div>
+  <div class="card">
+    <div class="sect-title">Locations</div>
+    <div id="locationList" class="mb-1"></div>
+    <form id="locForm" class="form-inline">
+      <div class="field"><label>Code</label><input name="code" placeholder="A1"></div>
+      <div class="field"><label>Name</label><input name="name" placeholder="Shelf A1"></div>
+      <div class="field"><label>Zone</label><input name="zone" placeholder="Dairy"></div>
+      <button type="submit" class="btn sm" style="margin-top:22px">Add</button>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="sect-title">Stock by Batch</div>
+  <div class="table-wrap">
+    <table class="tbl">
+      <thead><tr><th>Batch</th><th>Product</th><th>Qty</th><th>Location</th><th>Supplier</th><th>Expiry</th><th>Status</th></tr></thead>
+      <tbody id="inventoryBody"></tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/common.js') }}"></script>
+<script src="{{ url_for('static', filename='js/inventory.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Waste{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Waste & Recovery</h1>
+  <div class="actions">
+    <button class="btn" onclick="document.getElementById('wasteModal').classList.remove('hide')">+ Record Waste</button>
+  </div>
+</div>
+
+<div class="grid grid-4 mb-1" id="wasteKpis"></div>
+
+<div class="card">
+  <div class="sect-title">Waste Records — Revenue Recovery</div>
+  <div class="table-wrap">
+    <table class="tbl">
+      <thead><tr><th>Product</th><th>Batch</th><th>Qty</th><th>Reason</th><th>Potential Loss</th><th>Recovered</th><th>Savings</th></tr></thead>
+      <tbody id="wasteBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay hide" id="wasteModal">
+  <div class="modal">
+    <div class="modal-head"><h3>Record Wastage</h3><button class="icon-btn" onclick="document.getElementById('wasteModal').classList.add('hide')">✕</button></div>
+    <form id="wasteForm">
+      <div class="form-row">
+        <div class="field"><label>Product ID *</label><input name="product_id" type="number" required></div>
+        <div class="field"><label>Quantity *</label><input name="quantity" type="number" required></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Reason</label>
+          <select name="reason"><option value="EXPIRED">Expired</option><option value="DAMAGED">Damaged</option><option value="SPOILED">Spoiled</option><option value="OTHER">Other</option></select>
+        </div>
+        <div class="field"><label>Batch ID</label><input name="batch_id" type="number"></div>
+      </div>
+      <div class="field"><label>Notes</label><textarea name="notes" rows="2"></textarea></div>
+      <div class="modal-foot">
+        <button type="button" class="btn ghost" onclick="document.getElementById('wasteModal').classList.add('hide')">Cancel</button>
+        <button type="submit" class="btn danger">Record Waste</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/common.js') }}"></script>
+<script src="{{ url_for('static', filename='js/waste.js') }}"></script>
+{% endblock %}
