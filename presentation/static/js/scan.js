@@ -3,6 +3,7 @@
 
 let html5QrCode = null;
 let isScanning = false;
+let isMirrored = false;
 let currentCameraId = null;
 let availableCameras = [];
 let lastScannedCode = null;
@@ -41,7 +42,9 @@ async function initScanner() {
     if (availableCameras && availableCameras.length) {
       // Default to rear/back camera if found, otherwise first available
       const backCam = availableCameras.find(c =>
-        c.label.toLowerCase().includes('back') || c.label.toLowerCase().includes('rear') || c.label.toLowerCase().includes('environment')
+        c.label.toLowerCase().includes('back') ||
+        c.label.toLowerCase().includes('rear') ||
+        c.label.toLowerCase().includes('environment')
       );
       currentCameraId = backCam ? backCam.id : availableCameras[0].id;
       if (availableCameras.length > 1) {
@@ -57,10 +60,18 @@ async function startScanning() {
   if (!html5QrCode) await initScanner();
   if (!html5QrCode) return;
 
+  // Responsive large qrbox for easy 1D barcode alignment
+  const qrboxFunction = (viewfinderWidth, viewfinderHeight) => {
+    const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+    const width = Math.min(Math.floor(viewfinderWidth * 0.88), 460);
+    const height = Math.min(Math.floor(viewfinderHeight * 0.65), 240);
+    return { width: Math.max(width, 260), height: Math.max(height, 160) };
+  };
+
   const config = {
-    fps: 10,
-    qrbox: { width: 280, height: 180 },
-    aspectRatio: 1.3333,
+    fps: 15,
+    qrbox: qrboxFunction,
+    aspectRatio: 1.333333,
     formatsToSupport: [
       Html5QrcodeSupportedFormats.EAN_13,
       Html5QrcodeSupportedFormats.EAN_8,
@@ -78,22 +89,33 @@ async function startScanning() {
 
   try {
     document.getElementById('readerPlaceholder').style.display = 'none';
+    const scanGuide = document.getElementById('scanGuide');
+    const laserLine = document.getElementById('laserLine');
+    if (scanGuide) scanGuide.classList.add('active');
+    if (laserLine) laserLine.classList.add('active');
+
     await html5QrCode.start(
       cameraConfig,
       config,
       onBarcodeDecoded,
       (errorMessage) => {
-        // Scanning frame without barcode - no action needed
+        // Normal frame scanning without barcode detected
       }
     );
+
     isScanning = true;
-    updateStatus('Camera active · Scanning', 'green');
+    updateStatus('Camera Active · Scanning', 'green');
     document.getElementById('startScanBtn').style.display = 'none';
     document.getElementById('stopScanBtn').style.display = 'inline-flex';
+    document.getElementById('flipMirrorBtn').style.display = 'inline-flex';
   } catch (err) {
     console.error('Camera start error:', err);
     updateStatus('Camera access denied or unavailable', 'red');
     document.getElementById('readerPlaceholder').style.display = 'block';
+    const scanGuide = document.getElementById('scanGuide');
+    const laserLine = document.getElementById('laserLine');
+    if (scanGuide) scanGuide.classList.remove('active');
+    if (laserLine) laserLine.classList.remove('active');
     alert('Could not start camera. Please ensure camera permissions are granted in your browser, or use manual barcode entry.');
   }
 }
@@ -109,7 +131,23 @@ async function stopScanning() {
     document.getElementById('readerPlaceholder').style.display = 'block';
     document.getElementById('startScanBtn').style.display = 'inline-flex';
     document.getElementById('stopScanBtn').style.display = 'none';
+    const scanGuide = document.getElementById('scanGuide');
+    const laserLine = document.getElementById('laserLine');
+    if (scanGuide) scanGuide.classList.remove('active');
+    if (laserLine) laserLine.classList.remove('active');
     updateStatus('Scanner paused', 'yellow');
+  }
+}
+
+function toggleFlipMirror() {
+  isMirrored = !isMirrored;
+  const readerEl = document.getElementById('reader');
+  if (readerEl) {
+    if (isMirrored) {
+      readerEl.classList.add('mirrored');
+    } else {
+      readerEl.classList.remove('mirrored');
+    }
   }
 }
 
@@ -133,7 +171,7 @@ function onBarcodeDecoded(decodedText, decodedResult) {
   updateStatus(`Scanned: ${decodedText}`, 'blue');
   document.getElementById('manualBarcodeInput').value = decodedText;
 
-  // Temporarily stop scanner stream so user can focus on batch entry
+  // Temporarily stop scanner stream so user can review and submit batch entry
   stopScanning().catch(() => {});
   document.getElementById('restartScanBtn').style.display = 'inline-flex';
 
@@ -372,6 +410,10 @@ document.getElementById('startScanBtn').addEventListener('click', () => {
 
 document.getElementById('stopScanBtn').addEventListener('click', () => {
   stopScanning();
+});
+
+document.getElementById('flipMirrorBtn').addEventListener('click', () => {
+  toggleFlipMirror();
 });
 
 document.getElementById('toggleCameraBtn').addEventListener('click', () => {

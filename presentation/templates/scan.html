@@ -5,7 +5,7 @@
 <div class="page-head">
   <div>
     <h1>Barcode Scanning & Quick Entry</h1>
-    <p class="sub">Scan 1D product barcodes (EAN-13, UPC-A) via camera or input to quickly receive stock batches or register products.</p>
+    <p class="sub">Scan 1D product barcodes (EAN-13, UPC-A, Code-128) via camera or input to quickly receive stock batches or register products.</p>
   </div>
   <div class="actions">
     <a href="{{ url_for('pages.inventory') }}" class="btn ghost">← Back to Inventory</a>
@@ -13,28 +13,114 @@
   </div>
 </div>
 
+<style>
+  /* Spacious Camera Viewfinder & Mirror Controls */
+  #reader-container {
+    position: relative;
+    width: 100%;
+    min-height: 420px;
+    background: #090d16;
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border);
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4);
+  }
+
+  #reader {
+    width: 100% !important;
+    border: none !important;
+  }
+
+  #reader video {
+    width: 100% !important;
+    max-height: 480px !important;
+    object-fit: cover !important;
+    border-radius: 12px;
+    transform: none;
+    transition: transform 0.25s ease;
+  }
+
+  /* When mirrored class is active */
+  #reader.mirrored video {
+    transform: scaleX(-1) !important;
+  }
+
+  /* Custom styling for html5-qrcode overlays */
+  #reader__scan_region {
+    background: transparent !important;
+  }
+  #reader__dashboard {
+    display: none !important;
+  }
+
+  .scanner-guide {
+    position: absolute;
+    inset: 15% 10%;
+    border: 2px dashed rgba(99, 102, 241, 0.7);
+    border-radius: 12px;
+    pointer-events: none;
+    display: none;
+  }
+  .scanner-guide.active {
+    display: block;
+  }
+
+  .laser-line {
+    position: absolute;
+    left: 5%;
+    right: 5%;
+    top: 50%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #ef4444, #f87171, #ef4444, transparent);
+    box-shadow: 0 0 8px #ef4444;
+    animation: scanAnim 2.5s ease-in-out infinite;
+    pointer-events: none;
+    display: none;
+  }
+  .laser-line.active {
+    display: block;
+  }
+
+  @keyframes scanAnim {
+    0%, 100% { top: 20%; opacity: 0.4; }
+    50% { top: 80%; opacity: 1; }
+  }
+</style>
+
 <div class="grid grid-2">
-  <!-- Left: Scanner Viewfinder & Controls -->
+  <!-- Left: Large Scanner Viewfinder & Controls -->
   <div class="card">
-    <div class="sect-title" style="display:flex; justify-content:space-between; align-items:center;">
-      <span>📷 Live Viewfinder</span>
+    <div class="sect-title" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+      <span style="font-weight:700;">📷 Live Camera Viewfinder</span>
       <span id="scanStatusBadge" class="pill blue"><span class="dot"></span>Ready</span>
     </div>
 
-    <!-- Scanner container -->
-    <div id="reader-container" style="position:relative; width:100%; min-height:260px; background:#0b1220; border-radius:12px; overflow:hidden; display:flex; align-items:center; justify-content:center; margin-bottom:1rem; border:1px solid var(--border);">
-      <div id="reader" style="width:100%;"></div>
-      <div id="readerPlaceholder" style="text-align:center; padding:2rem; color:#94a3b8;">
-        <div style="font-size:2.5rem; margin-bottom:0.5rem;">📷</div>
-        <p style="margin:0 0 1rem; font-weight:600;">Camera scanner is paused or stopped</p>
-        <button id="startScanBtn" class="btn">Start Camera Scan</button>
+    <!-- Enlarged Scanner Viewport -->
+    <div id="reader-container">
+      <div id="reader"></div>
+      <div class="scanner-guide" id="scanGuide"></div>
+      <div class="laser-line" id="laserLine"></div>
+
+      <div id="readerPlaceholder" style="text-align:center; padding:3rem 1.5rem; color:#94a3b8; z-index:2;">
+        <div style="font-size:3.5rem; margin-bottom:0.75rem;">📷</div>
+        <h3 style="color:#f1f5f9; margin:0 0 0.5rem; font-size:1.15rem;">Camera Scanner Paused</h3>
+        <p style="margin:0 0 1.25rem; font-size:0.86rem; color:#94a3b8; max-width:320px;">
+          Click below to start your webcam or phone camera for real-time barcode detection.
+        </p>
+        <button id="startScanBtn" class="btn" style="padding:0.7rem 1.4rem; font-size:0.95rem;">Start Camera Scanner</button>
       </div>
     </div>
 
-    <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.25rem;">
-      <button id="toggleCameraBtn" class="btn sm ghost" style="display:none;">Switch Camera</button>
-      <button id="stopScanBtn" class="btn sm red" style="display:none;">Stop Camera</button>
-      <button id="restartScanBtn" class="btn sm" style="display:none;">Scan Another Barcode</button>
+    <!-- Scanner Action Bar -->
+    <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.25rem; align-items:center;">
+      <button id="toggleCameraBtn" class="btn sm ghost" style="display:none;">📷 Switch Camera</button>
+      <button id="flipMirrorBtn" class="btn sm ghost" style="display:none;" title="Flip horizontal mirror view">🔄 Flip / Mirror Video</button>
+      <button id="stopScanBtn" class="btn sm red" style="display:none;">⏹ Stop Camera</button>
+      <button id="restartScanBtn" class="btn sm" style="display:none;">📷 Scan Another Barcode</button>
     </div>
 
     <!-- Manual input fallback -->
@@ -49,7 +135,7 @@
       
       <!-- Quick demo test barcodes -->
       <div style="margin-top:0.75rem; font-size:0.76rem; color:var(--muted);">
-        <span>Quick Demo Barcodes: </span>
+        <span style="font-weight:600;">Quick Demo Barcodes: </span>
         <button type="button" class="chip" onclick="triggerLookup('8901030000014')">Milk 1L (8901030000014)</button>
         <button type="button" class="chip" onclick="triggerLookup('8901030000021')">Bread (8901030000021)</button>
         <button type="button" class="chip" onclick="triggerLookup('8901030000038')">Curd (8901030000038)</button>
@@ -68,12 +154,12 @@
       </div>
 
       <div style="display:flex; gap:1rem; align-items:flex-start; margin-bottom:1rem;">
-        <div style="width:48px; height:48px; border-radius:12px; background:linear-gradient(135deg,#6366f1,#0ea5e9); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.5rem; flex-shrink:0;">
+        <div style="width:52px; height:52px; border-radius:14px; background:linear-gradient(135deg,#6366f1,#0ea5e9); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.6rem; flex-shrink:0;">
           🛒
         </div>
         <div style="flex:1;">
-          <h3 id="resProdName" style="margin:0 0 0.25rem;">—</h3>
-          <div style="display:flex; gap:0.6rem; flex-wrap:wrap; font-size:0.8rem; color:var(--muted);">
+          <h3 id="resProdName" style="margin:0 0 0.25rem; font-size:1.2rem;">—</h3>
+          <div style="display:flex; gap:0.6rem; flex-wrap:wrap; font-size:0.82rem; color:var(--muted);">
             <span>SKU: <strong id="resProdSku" style="color:var(--text);">—</strong></span>
             <span>Barcode: <strong id="resProdBarcode" style="color:var(--text);">—</strong></span>
             <span>Category: <strong id="resProdCat" style="color:var(--text);">—</strong></span>
@@ -238,11 +324,11 @@
     </div>
 
     <!-- Default Idle Prompt -->
-    <div id="idleCard" class="card" style="text-align:center; padding:3rem 1.5rem; color:var(--muted);">
-      <div style="font-size:3rem; margin-bottom:0.75rem;">🏷️</div>
+    <div id="idleCard" class="card" style="text-align:center; padding:3.5rem 1.5rem; color:var(--muted);">
+      <div style="font-size:3.5rem; margin-bottom:0.75rem;">🏷️</div>
       <h3 style="color:var(--text); margin-bottom:0.5rem;">No Barcode Scanned</h3>
-      <p style="max-width:360px; margin:0 auto; font-size:0.88rem;">
-        Start the camera viewfinder or type a barcode above. When a barcode is recognized, the matching product and batch intake form will load automatically.
+      <p style="max-width:380px; margin:0 auto; font-size:0.88rem; line-height:1.6;">
+        Point your camera at any 1D barcode on product packaging, or enter a barcode above. The matching product and intake form will load automatically.
       </p>
     </div>
   </div>
