@@ -49,6 +49,12 @@ def batches():
     return p("batches.html", "batches")
 
 
+@bp.route("/scan")
+@login_required
+def scan():
+    return p("scan.html", "scan")
+
+
 @bp.route("/expiry")
 @login_required
 def expiry():

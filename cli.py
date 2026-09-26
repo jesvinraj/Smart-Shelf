@@ -73,16 +73,16 @@ def seed():
     db.session.flush()
 
     products = [
-        Product(name="Milk 1L", sku="MILK1", category_id=dairy.id, brand_id=brand.id,
+        Product(name="Milk 1L", sku="MILK1", barcode="8901030000014", category_id=dairy.id, brand_id=brand.id,
                 unit="btl", unit_price=60.0, cost_price=40.0, shelf_life_days=7,
                 storage_condition="CHILLED", is_perishable=True, reorder_level=20, lead_time_days=2),
-        Product(name="Bread Loaf", sku="BRD1", category_id=bakery.id, brand_id=brand.id,
+        Product(name="Bread Loaf", sku="BRD1", barcode="8901030000021", category_id=bakery.id, brand_id=brand.id,
                 unit="loaf", unit_price=50.0, cost_price=32.0, shelf_life_days=5,
                 storage_condition="AMBIENT", is_perishable=True, reorder_level=15, lead_time_days=1),
-        Product(name="Curd 500g", sku="CRD1", category_id=dairy.id, brand_id=brand.id,
+        Product(name="Curd 500g", sku="CRD1", barcode="8901030000038", category_id=dairy.id, brand_id=brand.id,
                 unit="cup", unit_price=52.0, cost_price=35.0, shelf_life_days=8,
                 storage_condition="CHILLED", is_perishable=True, reorder_level=18, lead_time_days=2),
-        Product(name="Tomatoes 500g", sku="TOM500", category_id=fresh.id, brand_id=brand.id,
+        Product(name="Tomatoes 500g", sku="TOM500", barcode="8901030000045", category_id=fresh.id, brand_id=brand.id,
                 unit="pk", unit_price=45.0, cost_price=28.0, shelf_life_days=5,
                 storage_condition="AMBIENT", is_perishable=True, reorder_level=30, lead_time_days=1),
     ]

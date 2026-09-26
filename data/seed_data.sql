@@ -21,13 +21,13 @@ INSERT INTO brands (name, description, is_active) VALUES
 
 -- Products
 INSERT INTO products
-  (name, sku, unit, unit_price, cost_price, shelf_life_days, storage_condition,
+  (name, sku, barcode, unit, unit_price, cost_price, shelf_life_days, storage_condition,
    is_perishable, reorder_level, lead_time_days, category_id, brand_id, is_active)
 VALUES
-  ('Milk 1L', 'MILK1', 'btl', 60.0, 40.0, 7, 'CHILLED', 1, 20, 2, 2, 1, 1),
-  ('Bread Loaf', 'BRD1', 'loaf', 50.0, 32.0, 5, 'AMBIENT', 1, 15, 1, 3, 1, 1),
-  ('Curd 500g', 'CRD1', 'cup', 52.0, 35.0, 8, 'CHILLED', 1, 18, 2, 2, 1, 1),
-  ('Tomatoes 500g', 'TOM500', 'pk', 45.0, 28.0, 5, 'AMBIENT', 1, 30, 1, 1, 1, 1);
+  ('Milk 1L', 'MILK1', '8901030000014', 'btl', 60.0, 40.0, 7, 'CHILLED', 1, 20, 2, 2, 1, 1),
+  ('Bread Loaf', 'BRD1', '8901030000021', 'loaf', 50.0, 32.0, 5, 'AMBIENT', 1, 15, 1, 3, 1, 1),
+  ('Curd 500g', 'CRD1', '8901030000038', 'cup', 52.0, 35.0, 8, 'CHILLED', 1, 18, 2, 2, 1, 1),
+  ('Tomatoes 500g', 'TOM500', '8901030000045', 'pk', 45.0, 28.0, 5, 'AMBIENT', 1, 30, 1, 1, 1, 1);
 
 -- Locations
 INSERT INTO locations (code, name, zone) VALUES

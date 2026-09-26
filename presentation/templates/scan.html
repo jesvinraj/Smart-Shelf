@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+{% block title %}Barcode Scan & Quick Entry{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Barcode Scanning & Quick Entry</h1>
+    <p class="sub">Scan 1D product barcodes (EAN-13, UPC-A) via camera or input to quickly receive stock batches or register products.</p>
+  </div>
+  <div class="actions">
+    <a href="{{ url_for('pages.inventory') }}" class="btn ghost">← Back to Inventory</a>
+    <a href="{{ url_for('pages.batches') }}" class="btn ghost">View Batches</a>
+  </div>
+</div>
+
+<div class="grid grid-2">
+  <!-- Left: Scanner Viewfinder & Controls -->
+  <div class="card">
+    <div class="sect-title" style="display:flex; justify-content:space-between; align-items:center;">
+      <span>📷 Live Viewfinder</span>
+      <span id="scanStatusBadge" class="pill blue"><span class="dot"></span>Ready</span>
+    </div>
+
+    <!-- Scanner container -->
+    <div id="reader-container" style="position:relative; width:100%; min-height:260px; background:#0b1220; border-radius:12px; overflow:hidden; display:flex; align-items:center; justify-content:center; margin-bottom:1rem; border:1px solid var(--border);">
+      <div id="reader" style="width:100%;"></div>
+      <div id="readerPlaceholder" style="text-align:center; padding:2rem; color:#94a3b8;">
+        <div style="font-size:2.5rem; margin-bottom:0.5rem;">📷</div>
+        <p style="margin:0 0 1rem; font-weight:600;">Camera scanner is paused or stopped</p>
+        <button id="startScanBtn" class="btn">Start Camera Scan</button>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.25rem;">
+      <button id="toggleCameraBtn" class="btn sm ghost" style="display:none;">Switch Camera</button>
+      <button id="stopScanBtn" class="btn sm red" style="display:none;">Stop Camera</button>
+      <button id="restartScanBtn" class="btn sm" style="display:none;">Scan Another Barcode</button>
+    </div>
+
+    <!-- Manual input fallback -->
+    <div style="border-top:1px solid var(--border); padding-top:1rem;">
+      <label style="display:block; font-size:0.82rem; font-weight:700; color:var(--muted); margin-bottom:0.4rem;">
+        ⌨️ Manual Barcode / USB Scanner Input
+      </label>
+      <form id="manualScanForm" style="display:flex; gap:0.5rem;">
+        <input id="manualBarcodeInput" type="text" placeholder="Enter barcode (e.g. 8901030000014)" style="flex:1;" autocomplete="off">
+        <button type="submit" class="btn sm">Lookup</button>
+      </form>
+      
+      <!-- Quick demo test barcodes -->
+      <div style="margin-top:0.75rem; font-size:0.76rem; color:var(--muted);">
+        <span>Quick Demo Barcodes: </span>
+        <button type="button" class="chip" onclick="triggerLookup('8901030000014')">Milk 1L (8901030000014)</button>
+        <button type="button" class="chip" onclick="triggerLookup('8901030000021')">Bread (8901030000021)</button>
+        <button type="button" class="chip" onclick="triggerLookup('8901030000038')">Curd (8901030000038)</button>
+        <button type="button" class="chip" onclick="triggerLookup('8901030000045')">Tomatoes (8901030000045)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Scanned Result & Inbound Batch Form / Register Form -->
+  <div>
+    <!-- Product Details Box -->
+    <div id="productResultCard" class="card mb-1" style="display:none;">
+      <div class="sect-title" style="display:flex; justify-content:space-between; align-items:center;">
+        <span>📦 Scanned Product</span>
+        <span id="prodPerishBadge"></span>
+      </div>
+
+      <div style="display:flex; gap:1rem; align-items:flex-start; margin-bottom:1rem;">
+        <div style="width:48px; height:48px; border-radius:12px; background:linear-gradient(135deg,#6366f1,#0ea5e9); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.5rem; flex-shrink:0;">
+          🛒
+        </div>
+        <div style="flex:1;">
+          <h3 id="resProdName" style="margin:0 0 0.25rem;">—</h3>
+          <div style="display:flex; gap:0.6rem; flex-wrap:wrap; font-size:0.8rem; color:var(--muted);">
+            <span>SKU: <strong id="resProdSku" style="color:var(--text);">—</strong></span>
+            <span>Barcode: <strong id="resProdBarcode" style="color:var(--text);">—</strong></span>
+            <span>Category: <strong id="resProdCat" style="color:var(--text);">—</strong></span>
+            <span>Current Stock: <strong id="resProdStock" style="color:var(--text);">0</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inbound Batch Entry Form -->
+    <div id="batchEntryCard" class="card" style="display:none;">
+      <div class="sect-title">📥 Quick Inbound Batch Entry</div>
+      <p class="sub" style="margin-top:-0.5rem; margin-bottom:1rem;">Receive new inventory batch for this product directly into FEFO tracking.</p>
+
+      <form id="quickBatchForm">
+        <input type="hidden" name="product_id" id="batchProductId">
+        
+        <div class="form-row">
+          <div class="field">
+            <label>Batch Code / Lot # <span style="color:var(--red);">*</span></label>
+            <input name="batch_code" id="batchCodeInput" placeholder="e.g. BATCH-2026-09" required>
+          </div>
+          <div class="field">
+            <label>Quantity Received <span style="color:var(--red);">*</span></label>
+            <input name="quantity" id="batchQtyInput" type="number" min="1" placeholder="e.g. 50" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <label>Cost Price (₹ per unit)</label>
+            <input name="cost_price" id="batchCostInput" type="number" step="0.01" placeholder="e.g. 40.00">
+          </div>
+          <div class="field">
+            <label>Expiry Date <span style="color:var(--red);">*</span></label>
+            <input name="expiry_date" id="batchExpiryInput" type="date" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <label>Manufactured Date</label>
+            <input name="manufactured_date" id="batchManufInput" type="date">
+          </div>
+          <div class="field">
+            <label>Supplier</label>
+            <select name="supplier_id" id="batchSupplierSelect">
+              <option value="">Select Supplier (Optional)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <label>Storage Location</label>
+            <select name="location_id" id="batchLocationSelect">
+              <option value="">Select Location (Optional)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Receiving Reference</label>
+            <input name="reference" placeholder="e.g. PO-8821 / Invoice #">
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1.25rem;">
+          <button type="button" class="btn ghost" onclick="resetScanView()">Cancel</button>
+          <button type="submit" class="btn green">Receive Batch Stock</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Product Not Found Prompt -->
+    <div id="notFoundCard" class="card" style="display:none; border-color:var(--orange);">
+      <div style="display:flex; gap:1rem; align-items:center;">
+        <div style="font-size:2rem;">⚠️</div>
+        <div>
+          <h3 style="margin:0 0 0.25rem; color:var(--orange);">Product Not Found</h3>
+          <p style="margin:0 0 0.75rem; color:var(--muted); font-size:0.86rem;">
+            No product is currently registered with barcode <strong id="notFoundBarcode" style="color:var(--text);"></strong>.
+          </p>
+          <button type="button" class="btn sm" onclick="showQuickRegister()">+ Register as New Product</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Product Registration Form -->
+    <div id="quickRegisterCard" class="card mt-1" style="display:none;">
+      <div class="sect-title">✨ Register New Product</div>
+      <p class="sub" style="margin-top:-0.5rem; margin-bottom:1rem;">Create product catalog entry with pre-filled barcode, then proceed to stock entry.</p>
+
+      <form id="quickRegisterForm">
+        <input type="hidden" name="barcode" id="regBarcodeInput">
+
+        <div class="form-row">
+          <div class="field">
+            <label>Product Name <span style="color:var(--red);">*</span></label>
+            <input name="name" id="regNameInput" placeholder="e.g. Organic Almond Milk 1L" required>
+          </div>
+          <div class="field">
+            <label>SKU Code <span style="color:var(--red);">*</span></label>
+            <input name="sku" id="regSkuInput" placeholder="e.g. ALM-1L" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <label>Category</label>
+            <select name="category_id" id="regCatSelect">
+              <option value="">Select Category</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Unit</label>
+            <input name="unit" placeholder="pcs, btl, kg, loaf" value="pcs">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <label>Selling Unit Price (₹) <span style="color:var(--red);">*</span></label>
+            <input name="unit_price" type="number" step="0.01" placeholder="e.g. 120.00" required>
+          </div>
+          <div class="field">
+            <label>Cost Price (₹) <span style="color:var(--red);">*</span></label>
+            <input name="cost_price" type="number" step="0.01" placeholder="e.g. 85.00" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <label>Shelf Life (Days)</label>
+            <input name="shelf_life_days" type="number" placeholder="e.g. 14">
+          </div>
+          <div class="field">
+            <label>Storage Condition</label>
+            <select name="storage_condition">
+              <option value="AMBIENT">Ambient</option>
+              <option value="CHILLED">Chilled</option>
+              <option value="FROZEN">Frozen</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <label>Reorder Threshold</label>
+            <input name="reorder_level" type="number" value="10">
+          </div>
+          <div class="field" style="display:flex; align-items:center; margin-top:22px;">
+            <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+              <input name="is_perishable" type="checkbox" checked style="width:auto;"> Perishable Item
+            </label>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1.25rem;">
+          <button type="button" class="btn ghost" onclick="hideQuickRegister()">Cancel</button>
+          <button type="submit" class="btn">Save & Proceed to Batch Entry</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Default Idle Prompt -->
+    <div id="idleCard" class="card" style="text-align:center; padding:3rem 1.5rem; color:var(--muted);">
+      <div style="font-size:3rem; margin-bottom:0.75rem;">🏷️</div>
+      <h3 style="color:var(--text); margin-bottom:0.5rem;">No Barcode Scanned</h3>
+      <p style="max-width:360px; margin:0 auto; font-size:0.88rem;">
+        Start the camera viewfinder or type a barcode above. When a barcode is recognized, the matching product and batch intake form will load automatically.
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- html5-qrcode CDN for client-side camera barcode scanning -->
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="{{ url_for('static', filename='js/common.js') }}"></script>
+<script src="{{ url_for('static', filename='js/scan.js') }}"></script>
+{% endblock %}

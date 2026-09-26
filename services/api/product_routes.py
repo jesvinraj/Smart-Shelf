@@ -88,6 +88,19 @@ def get_product(pid: int):
     return jsonify(_prod(p))
 
 
+@bp.get("/products/lookup/<string:barcode>")
+@login_required
+def lookup_product_by_barcode(barcode: str):
+    code = barcode.strip()
+    p = Product.query.filter(Product.barcode == code).first()
+    if not p:
+        return jsonify({"error": "Product not found", "barcode": code}), 404
+    data = _prod(p)
+    data["category"] = p.category.name if p.category else None
+    data["brand"] = p.brand.name if p.brand else None
+    return jsonify(data)
+
+
 @bp.post("/products")
 @at_least(Role.MANAGER)
 def create_product():
@@ -96,6 +109,8 @@ def create_product():
         return jsonify({"error": "name, sku required"}), 400
     if Product.query.filter(Product.sku == data["sku"]).first():
         return jsonify({"error": "SKU exists"}), 409
+    if data.get("barcode") and Product.query.filter(Product.barcode == data["barcode"]).first():
+        return jsonify({"error": "Barcode exists"}), 409
     p = Product(**{k: v for k, v in data.items() if k not in ("category_id", "brand_id")})
     p.category_id = data.get("category_id")
     p.brand_id = data.get("brand_id")

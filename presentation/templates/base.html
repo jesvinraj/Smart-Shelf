@@ -37,6 +37,8 @@
     <path d="M12 20V10"></path><path d="M18 20V4"></path><path d="M6 20v-4"></path>
     {%- elif name == 'reports' %}
     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M8 13h8"></path><path d="M8 17h8"></path>
+    {%- elif name == 'scan' %}
+    <path d="M3 5v4M3 5h4M21 5v4M21 5h-4M3 19v-4M3 19h4M21 19v-4M21 19h-4M7 8v8M10 8v8M14 8v8M17 8v8"></path>
     {%- elif name == 'settings' %}
     <path d="M4 21v-7"></path><path d="M4 10V3"></path><path d="M12 21v-9"></path><path d="M12 8V3"></path><path d="M20 21v-5"></path><path d="M20 12V3"></path><path d="M1 14h6"></path><path d="M9 8h6"></path><path d="M17 16h6"></path>
     {%- elif name == 'search' %}
@@ -49,7 +51,7 @@
 
   {% set page_titles = {
     'dashboard': 'Dashboard', 'products': 'Products', 'suppliers': 'Suppliers',
-    'inventory': 'Inventory', 'batches': 'Batches', 'expiry': 'Expiry',
+    'inventory': 'Inventory', 'batches': 'Batches', 'scan': 'Barcode Scan', 'expiry': 'Expiry',
     'fefo': 'FEFO', 'pricing': 'Pricing', 'risk': 'Risk', 'sales': 'Sales',
     'analytics': 'Analytics', 'alerts': 'Alerts', 'waste': 'Waste',
     'reports': 'Reports', 'settings': 'Settings'
@@ -71,6 +73,7 @@
         <a class="{% if active == 'suppliers' %}active{% endif %}" href="{{ url_for('pages.suppliers') }}"{% if active == 'suppliers' %} aria-current="page"{% endif %}>{{ nav_icon('suppliers') }} Suppliers</a>
         <a class="{% if active == 'inventory' %}active{% endif %}" href="{{ url_for('pages.inventory') }}"{% if active == 'inventory' %} aria-current="page"{% endif %}>{{ nav_icon('inventory') }} Inventory</a>
         <a class="{% if active == 'batches' %}active{% endif %}" href="{{ url_for('pages.batches') }}"{% if active == 'batches' %} aria-current="page"{% endif %}>{{ nav_icon('batches') }} Batches</a>
+        <a class="{% if active == 'scan' %}active{% endif %}" href="{{ url_for('pages.scan') }}"{% if active == 'scan' %} aria-current="page"{% endif %}>{{ nav_icon('scan') }} Barcode Scan</a>
         <a class="{% if active == 'sales' %}active{% endif %}" href="{{ url_for('pages.sales') }}"{% if active == 'sales' %} aria-current="page"{% endif %}>{{ nav_icon('sales') }} Sales</a>
         <a class="{% if active == 'waste' %}active{% endif %}" href="{{ url_for('pages.waste') }}"{% if active == 'waste' %} aria-current="page"{% endif %}>{{ nav_icon('waste') }} Waste</a>
 

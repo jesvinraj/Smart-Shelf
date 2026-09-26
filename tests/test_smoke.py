@@ -102,6 +102,7 @@ class TestSmoke(unittest.TestCase):
             "/suppliers",
             "/inventory",
             "/batches",
+            "/scan",
             "/fefo",
             "/risk",
             "/pricing",

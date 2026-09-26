@@ -120,6 +120,8 @@ CREATE TABLE products (
 	created_at DATETIME, 
 	updated_at DATETIME, 
 	PRIMARY KEY (id), 
+	UNIQUE (sku), 
+	UNIQUE (barcode), 
 	FOREIGN KEY(category_id) REFERENCES categories (id), 
 	FOREIGN KEY(brand_id) REFERENCES brands (id)
 );

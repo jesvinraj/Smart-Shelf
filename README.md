@@ -12,7 +12,7 @@ SmartShelf is structured according to a strict **5-Layer Architecture** with cle
 ┌──────────────────────────────────────────────────────────────────────────────────┐
 │                             1. PRESENTATION LAYER                                │
 │        Jinja2 Templates (HTML5) · Responsive UI (CSS3) · Client Controllers (JS) │
-│               Pages: Dashboard · Products · Inventory · Batches · FEFO           │
+│           Pages: Dashboard · Products · Inventory · Batches · Scan · FEFO        │
 │             Pricing · Risk · Sales/POS · Analytics · Alerts · Reports            │
 └────────────────────────────────────────┬─────────────────────────────────────────┘
                                          │ JSON API & HTML Requests
@@ -21,7 +21,7 @@ SmartShelf is structured according to a strict **5-Layer Architecture** with cle
 │                       2. APPLICATION / SERVICE LAYER                             │
 │       REST Blueprints (/api/*) · RBAC Authorization (@at_least, @roles_required) │
 │        Stock Service · Expiry Service · Alert Service · Notification Service     │
-│                     Waste & Recovery Service · Audit Log Service                 │
+│       Waste & Recovery Service · Audit Log Service · Product/Barcode Lookup      │
 └────────────────────────────────────────┬─────────────────────────────────────────┘
                                          │ Algorithmic Invocations
                                          ▼
@@ -52,9 +52,9 @@ SmartShelf is structured according to a strict **5-Layer Architecture** with cle
 
 ---
 
-## 2. Core Modules Breakdown (16 Modules)
+## 2. Core Modules Breakdown (17 Modules)
 
-The platform is organized across 16 core business modules:
+The platform is organized across 17 core business modules:
 
 | # | Module Name | Layer | Purpose & Key Capabilities |
 |---|---|---|---|
@@ -74,6 +74,7 @@ The platform is organized across 16 core business modules:
 | **14** | **Analytics & Decision Support Dashboard** | Analytics & Outcome | Real-time executive dashboard summarizing inventory valuation, sales revenue, waste write-off valuation, risk distributions, and sales trends. |
 | **15** | **Waste & Revenue Recovery Management** | Analytics & Outcome | Spoilage write-off recording, potential financial loss calculation, and recovered revenue / markdown savings tracking. |
 | **16** | **Reporting & Administration** | Analytics & Outcome | Comprehensive reporting suite (Sales, Stock, Expiry, Discount, Wastage, Performance, and Security Audit) and `/api/health` system probe. |
+| **17** | **Barcode Scanning & Quick Entry** | Presentation & Service | In-browser client-side 1D barcode scanning (`html5-qrcode` CDN) via phone/laptop camera or USB scanner, instantaneous product barcode lookup (`GET /api/products/lookup/<barcode>`), automated inbound batch pre-fill (expiry calculation, cost price), and immediate new product registration fallback. *Requires HTTPS or localhost for browser `getUserMedia` camera permissions.* |
 
 ---
 
@@ -125,6 +126,7 @@ SmartShelf/
 │   │   ├── suppliers.html          # Supplier directory
 │   │   ├── inventory.html          # Stock receiving & movements
 │   │   ├── batches.html            # Batch management
+│   │   ├── scan.html               # Barcode scanner & quick stock intake
 │   │   ├── expiry.html             # Shelf-life & expiry monitoring
 │   │   ├── fefo.html               # FEFO dispatch & queue visualization
 │   │   ├── sales.html              # POS checkout & transactions
@@ -139,7 +141,7 @@ SmartShelf/
 │   │   └── register.html           # Staff onboarding registration
 │   ├── static/                     # CSS, JavaScript & theme assets
 │   │   ├── css/style.css           # Modern, responsive design theme
-│   │   └── js/                     # Frontend client controllers
+│   │   └── js/                     # Frontend client controllers (including scan.js)
 │   └── routes/                     # Server-side page routing
 │       └── page_routes.py          # HTML view blueprint
 │
@@ -200,7 +202,8 @@ SmartShelf/
 │   ├── test_engines.py             # FEFO, risk scoring & dynamic pricing unit tests
 │   ├── test_security.py            # RBAC, TOTP, lockout & token reset tests
 │   ├── test_concurrency.py         # Atomic stock deduction & race condition tests
-│   └── smoke_test.py               # End-to-end user & inventory workflow tests
+│   ├── test_barcode.py             # Barcode lookup, 404, duplicates & scanning tests
+│   └── test_smoke.py               # End-to-end user & inventory workflow tests
 │
 ├── docs/                           # Architecture diagrams & project documentation
 ├── docker/                         # Nginx TLS termination & entrypoint scripts
@@ -271,7 +274,8 @@ python -m unittest discover tests
 python tests/test_engines.py      # Core FEFO, risk scoring, and pricing math
 python tests/test_security.py     # 35 security scenarios (2FA, lockout, tokens)
 python tests/test_concurrency.py  # 20 concurrent threads testing atomic stock deductions
-python tests/smoke_test.py        # End-to-end workflow verification
+python tests/test_barcode.py      # Barcode lookup, 404 handling & quick entry
+python tests/test_smoke.py        # End-to-end workflow verification
 ```
 
 ---
